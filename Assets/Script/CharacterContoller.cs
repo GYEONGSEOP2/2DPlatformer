@@ -12,21 +12,19 @@ public class CharacterContoller : MonoBehaviour
     [SerializeField]
     private float DASH_SPEED = 15.0f;
     [SerializeField]
-    private float GRAVITY_VALUE = 3.0f;
+    private float GRAVITY_VALUE = 5.0f;
     [SerializeField]
     private float RAYCAST_RANGE = 0.5f;
     [SerializeField]
-    private float JUMP_VALUE = 6.0f;
+    private float JUMP_VALUE = 10.0f;
 
     private float FORCE_DOWN = 2.0f;
 
-[SerializeField]
     CameraController cameraController;
 
-    private SpriteRenderer renderer = null;
-    private Animator animator = null;
+    private SpriteRenderer renderer;
+    private Animator animator;
 
-    private BoxCollider2D collider2D;
 
     private bool isPlatformOrGround = false;
     private bool isGround = false;
@@ -48,14 +46,20 @@ public class CharacterContoller : MonoBehaviour
     void Awake()
     {
         renderer = GetComponentInChildren<SpriteRenderer>();
+        if(renderer == null)
+        {
+            Debug.LogError("CharacterCotroller.Awake() : renderer is Null");
+        }
         animator = GetComponentInChildren<Animator>();
-
-        collider2D = GetComponent<BoxCollider2D>();
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        if(animator == null)
+        {
+            Debug.LogError("CharacterCotroller.Awake() : animator is Null");
+        }
+        cameraController = Camera.main.GetComponent<CameraController>();
+        if(cameraController == null)
+        {
+            Debug.LogError("CharacterCotroller.Awake() : cameraController is Null");
+        }
     }
 
     void FixedUpdate()
@@ -66,6 +70,16 @@ public class CharacterContoller : MonoBehaviour
     }
     // Update is called once per frame
     void Update()
+    {
+        CharacterMoveHorizontal();
+        CharacterDash();
+        CharacterJump();
+        CharacterAttack();
+        CharacterDownPlatform();
+        
+        GravityEffect();
+    }
+    void CharacterMoveHorizontal()
     {
         float move = Input.GetAxisRaw("Horizontal");
         
@@ -97,8 +111,10 @@ public class CharacterContoller : MonoBehaviour
             
             animator.SetBool("isWalk", move != 0);
         }
-
-        if(Input.GetKeyDown(KeyCode.X) && isPlatformOrGround == true)
+    }
+    void CharacterDash()
+    {
+        if(Input.GetKeyDown(KeyCode.LeftShift) && isPlatformOrGround == true)
         {
             isDash = true;
             StartCoroutine(StopDash());
@@ -128,9 +144,10 @@ public class CharacterContoller : MonoBehaviour
                 }
             }
         }
-    
-        
+    }
 
+    void CharacterJump()
+    {
         if(Input.GetKeyDown(KeyCode.Space) && isJumping == false && isPlatformOrGround == true && isAttack == false && isDash == false)
         {
             animator.SetBool("isFall", false);
@@ -164,22 +181,27 @@ public class CharacterContoller : MonoBehaviour
                 isJumping = false;
             }
        }
-
-       if(Input.GetKeyDown(KeyCode.Z) && isDash == false)
-       {
+    }
+    void CharacterAttack()
+    {
+        if(Input.GetKeyDown(KeyCode.LeftControl) && isDash == false)
+        {
             if(isPlatformOrGround == true && isJumping == false)
             {
                 animator.SetBool("isAttack",true);
                 isAttack = true;
             }
-       }
-       if(Input.GetKeyUp(KeyCode.Z)&& isDash == false)
-       {
+        }
+        if(Input.GetKeyUp(KeyCode.LeftControl)&& isDash == false)
+        {
             animator.SetBool("isAttack",false);
             isAttack = false;
-       }
+        }
+    }
 
-       if(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S) && isDash == false)
+    void CharacterDownPlatform()
+    {
+        if(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S) && isDash == false)
        {
            if(isPlatformOrGround == true && isPlatform == true)
            {
@@ -188,12 +210,9 @@ public class CharacterContoller : MonoBehaviour
                 animator.SetBool("isFall", true);
                 isJumping = false;
 
-                StartCoroutine(StopDownFloor());
+                StartCoroutine(StopDownPlatform());
            }
        }
-       
-
-        GravityEffect();
     }
 
     void GravityEffect()
@@ -310,7 +329,7 @@ public class CharacterContoller : MonoBehaviour
         isDash = false;
         animator.SetBool("isDash",false);
     }
-    IEnumerator StopDownFloor()
+    IEnumerator StopDownPlatform()
     {
         yield return new WaitForSeconds(0.5f);
         isMoveDown = false;
