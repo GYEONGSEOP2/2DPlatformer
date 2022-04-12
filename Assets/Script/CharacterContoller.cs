@@ -22,12 +22,11 @@ public class CharacterContoller : MonoBehaviour
 
     CameraController cameraController;
 
-    private SpriteRenderer renderer;
+    private SpriteRenderer spriteRenderer;
     private Animator animator;
 
 
     private bool isPlatformOrGround = false;
-    private bool isGround = false;
     private bool isPlatform = false;
     private bool blockLeft = false;
     private bool blockRight = false;
@@ -45,8 +44,8 @@ public class CharacterContoller : MonoBehaviour
     private float positionY = 0.0f;
     void Awake()
     {
-        renderer = GetComponentInChildren<SpriteRenderer>();
-        if(renderer == null)
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if(spriteRenderer == null)
         {
             Debug.LogError("CharacterCotroller.Awake() : renderer is Null");
         }
@@ -87,7 +86,7 @@ public class CharacterContoller : MonoBehaviour
         {
             if(move > 0)
             {
-                renderer.flipX = false;
+                spriteRenderer.flipX = false;
 
                 if(blockRight == false)
                 {
@@ -99,7 +98,7 @@ public class CharacterContoller : MonoBehaviour
             }
             else if ( move < 0 )
             {
-                renderer.flipX = true;
+                spriteRenderer.flipX = true;
                 if(blockLeft == false)
                 {
                     float moveSpeed =  move * Time.deltaTime * MOVE_SPEED;
@@ -123,7 +122,7 @@ public class CharacterContoller : MonoBehaviour
         if(isDash == true)
         {
             animator.SetBool("isDash",true);
-            if( renderer.flipX.Equals(true) )
+            if( spriteRenderer.flipX.Equals(true) )
             {
                 if(blockLeft == false)
                 {
@@ -157,7 +156,6 @@ public class CharacterContoller : MonoBehaviour
             
              isJumping = true;
              isPlatformOrGround = false;
-             isGround = false;
              isPlatform = false;
              jumpingPower = JUMP_VALUE;
              isForceDown = false;
@@ -232,7 +230,6 @@ public class CharacterContoller : MonoBehaviour
         if(isMoveDown == true)
         {
             isPlatformOrGround = false;
-            isGround = false;
             isPlatform = false;
             isJumping = true;
 
@@ -246,7 +243,6 @@ public class CharacterContoller : MonoBehaviour
             if( hitDown[i].transform.gameObject.layer == LayerMask.NameToLayer("Ground") )
             {
                 positionY = hitDown[i].collider.bounds.max.y + 0.5f;
-                isGround = true;
                 isPlatformOrGround = true;
                 break;
             }
@@ -266,7 +262,6 @@ public class CharacterContoller : MonoBehaviour
         }
         else
         {
-            isGround = false;
             isPlatform = false;
         }
         animator.SetBool("isGround", isPlatformOrGround);
