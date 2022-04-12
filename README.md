@@ -1,7 +1,12 @@
 # 2DPlatformer
-
-# Unity 2020.3.33f1
-
+  Unity 2020.3.33f1
+  
+# 구성
+파일|설명
+---|---|
+Test.Unity|구성한 씬
+CharacterContoller.cs|캐릭터 이동기능 구현
+CameraController.cs|카메라 이동만 구현되어있음
 
 # 조작
 버튼|기능설명
